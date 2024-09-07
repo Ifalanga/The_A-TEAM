@@ -4,7 +4,7 @@ import sqlite3
 from models import User, Course
 
 def create_tables():
-    """Create tables in the database if they do not already exist."""
+
     with sqlite3.connect('TheLearningHub_db.db') as connection:
         cursor = connection.cursor()
         cursor.execute('''
@@ -28,7 +28,7 @@ def create_tables():
         connection.commit()
 
 def insert_user(user: User):
-    """Insert a record into the users table."""
+
     with sqlite3.connect('TheLearningHub_db.db') as connection:
         cursor = connection.cursor()
         print(
@@ -41,8 +41,21 @@ def insert_user(user: User):
         connection.commit()
 
 
+def update_user(user: User):
+    with sqlite3.connect('TheLearningHub_db.db') as connection:
+        cursor = connection.cursor()
+        cursor.execute('''
+                   UPDATE users
+                   SET fullname = ?, email = ?, password = ?, interest = ?, level = ?
+                   WHERE username = ?
+               ''', (user.fullname, user.email, user.password, user.interest, user.level, user.username))
+        connection.commit()
+        if cursor.rowcount == 0:
+            return False  # No rows were updated, user might not exist
+        return True
+
 def insert_course(course: Course):
-    """Insert a record into the courses table."""
+
     with sqlite3.connect('TheLearningHub_db.db') as connection:
         cursor = connection.cursor()
         cursor.execute('''
@@ -50,17 +63,32 @@ def insert_course(course: Course):
         VALUES (?, ?)
         ''', (course.namecourse, course.username))
         connection.commit()
+        if cursor.rowcount == 0:
+            return False  
+        return True
 
 def get_user(username):
-    """Fetch a user by username."""
+    print("hetre")
     with sqlite3.connect('TheLearningHub_db.db') as connection:
         cursor = connection.cursor()
         cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
-        user = cursor.fetchone()
-        return user
+        user_row = cursor.fetchone()
+
+        if user_row:
+
+            user = User(
+                username=user_row[0],
+                full_name=user_row[1],
+                email=user_row[2],
+                password=user_row[3],
+                interest=user_row[4],
+                level=user_row[5]
+            )
+            print(f"type pf is:{type(user)}")
+            return user
 
 def get_user_courses(username):
-    """Fetch all courses associated with a given username."""
+
     with sqlite3.connect('TheLearningHub_db.db') as connection:
         cursor = connection.cursor()
         cursor.execute('SELECT * FROM courses WHERE username = ?', (username,))
@@ -70,4 +98,4 @@ def get_user_courses(username):
 if __name__ == "__main__":
     # Create tables
     create_tables()
-    # Add more functionality as needed
+
