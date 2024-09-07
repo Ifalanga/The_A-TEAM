@@ -16,7 +16,7 @@ def add_user(user: User):
     print(user.password)
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
 
-    user.password = hashed_password
+    user.password = str(hashed_password.decode('utf-8'))
     print(user.password)
     db.insert_user(user)
 
